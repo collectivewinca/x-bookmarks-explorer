@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding Bookmarks | @shinydiscobear</title>
+    <meta name="description" content="Explore 44 bookmarks about Vibe Coding from @shinydiscobear">
+    <meta property="og:title" content="Vibe Coding Bookmarks | @shinydiscobear">
+    <meta property="og:description" content="Explore 44 bookmarks about Vibe Coding">
+    <style>
+        :root {
+            --paper: #0a0a0a;
+            --card: #141414;
+            --accent: #ff6b35;
+            --text: #e0e0e0;
+            --text-soft: #8a8a8a;
+            --border: #2a2a2a;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--paper);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        header { padding: 2rem; border-bottom: 1px solid var(--border); }
+        .header-content { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 1rem; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #ff8c42); display: flex; align-items: center; justify-content: center; }
+        .subtitle { color: var(--text-soft); margin-bottom: 1rem; }
+        .back-link { color: var(--accent); text-decoration: none; margin-bottom: 1rem; display: block; }
+        .back-link:hover { text-decoration: underline; }
+        main { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        .card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(255,107,53,0.15); }
+        .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .card-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #ff8c42); display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; }
+        .card-author { font-weight: 600; }
+        .card-handle { color: var(--text-soft); font-size: 0.85rem; }
+        .card-date { color: var(--text-soft); font-size: 0.8rem; margin-left: auto; }
+        .card-text { font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem; }
+        .card-image { width: 100%; border-radius: var(--radius-sm); margin-bottom: 1rem; object-fit: cover; max-height: 200px; }
+        .card-meta { display: flex; gap: 1rem; color: var(--text-soft); font-size: 0.85rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .btn { padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.85rem; cursor: pointer; border: none; font-weight: 500; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-soft); }
+        .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+        footer { padding: 2rem; border-top: 1px solid var(--border); text-align: center; color: var(--text-soft); font-size: 0.85rem; }
+        @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="back-link">← Back to All Bookmarks</a>
+            <h1><span class="avatar">✨</span> Vibe Coding Bookmarks</h1>
+            <p class="subtitle">44 curated bookmarks about vibe coding from @shinydiscobear</p>
+        </div>
+    </header>
+    
+    <main>
+        <div class="grid" id="bookmarksGrid"></div>
+    </main>
+    
+    <footer>
+        <p><a href="index.html" style="color: var(--accent);">← All Bookmarks</a> | Built with ❤️ by Mistral Vibe</p>
+    </footer>
+    
+    <script>
+        let bookmarks = [];
+        async function loadBookmarks() {
+            try {
+                const response = await fetch('vibe_coding.json');
+                if (!response.ok) throw new Error('Failed to load');
+                bookmarks = await response.json();
+                bookmarks = bookmarks.map(b => ({
+                    id: b.id,
+                    author: b.author?.screenName || 'Unknown',
+                    authorName: b.author?.name || 'Unknown',
+                    text: b.text || '',
+                    date: b.createdAtLocal || '',
+                    url: `https://x.com/${b.author?.screenName || 'unknown'}/status/${b.id}`,
+                    likes: b.metrics?.likes || 0,
+                    retweets: b.metrics?.retweets || 0,
+                    bookmarks: b.metrics?.bookmarks || 0,
+                    media: b.media || []
+                }));
+                renderBookmarks();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+        
+        function getImageUrl(media) {
+            if (!media || media.length === 0) return null;
+            return media[0].url?.replace('http://', 'https://') || null;
+        }
+        
+        function createCard(b, index) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.animationDelay = `${index * 0.05}s`;
+            const imageUrl = getImageUrl(b.media);
+            const avatarText = b.authorName.charAt(0) || b.author.charAt(0) || '?';
+            let imageHtml = '';
+            if (imageUrl) imageHtml = `<img src="${imageUrl}" class="card-image" alt="" onerror="this.style.display='none'">`;
+            
+            card.innerHTML = `
+                ${imageHtml}
+                <div class="card-header">
+                    <div class="card-avatar">${avatarText}</div>
+                    <div>
+                        <div class="card-author">${escapeHtml(b.authorName || b.author)}</div>
+                        <div class="card-handle">@${b.author}</div>
+                    </div>
+                    <span class="card-date">${formatDate(b.date)}</span>
+                </div>
+                <div class="card-text">${escapeHtml(b.text)}</div>
+                <div class="card-meta">
+                    <span>👍 ${b.likes.toLocaleString()}</span>
+                    <span>🔄 ${b.retweets.toLocaleString()}</span>
+                    <span>🔖 ${b.bookmarks.toLocaleString()}</span>
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <a href="${b.url}" target="_blank" class="btn btn-primary">View on X</a>
+                    <button class="btn btn-secondary" onclick="copy('${b.url}')">Copy</button>
+                </div>
+            `;
+            return card;
+        }
+        
+        function renderBookmarks() {
+            const grid = document.getElementById('bookmarksGrid');
+            grid.innerHTML = '';
+            bookmarks.forEach((b, i) => {
+                const card = createCard(b, i);
+                grid.appendChild(card);
+            });
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const d = Math.floor((Date.now() - new Date(dateStr)) / 86400000);
+            if (d < 1) return 'Today';
+            if (d < 7) return `${d}d ago`;
+            if (d < 30) return `${Math.floor(d/7)}w ago`;
+            if (d < 365) return `${Math.floor(d/30)}mo ago`;
+            return `${Math.floor(d/365)}y ago`;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function copy(text) {
+            navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+        }
+        
+        loadBookmarks();
+    </script>
+</body>
+</html>
